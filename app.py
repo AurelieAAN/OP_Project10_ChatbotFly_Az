@@ -28,7 +28,7 @@ from flight_booking_recognizer import FlightBookingRecognizer
 loop = asyncio.get_event_loop()
 
 CONFIG = DefaultConfig()
-botadaptersettings = BotFrameworkAdapterSettings("", "")
+botadaptersettings = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)
 botadapter = BotFrameworkAdapter(botadaptersettings)
 
 
@@ -79,6 +79,7 @@ async def messages(req: Request) -> Response:
     if response:
         return json_response(data=response.body, status=response.status)
     return Response(status=HTTPStatus.OK)
+
 
 def init_funct(argv):
     APP = web.Application(middlewares=[bot_telemetry_middleware, aiohttp_error_middleware])
