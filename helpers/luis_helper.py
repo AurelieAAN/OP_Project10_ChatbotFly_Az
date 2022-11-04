@@ -46,7 +46,7 @@ class LuisHelper:
         query_base = (
         f"{CONFIG.LUIS_API_HOST_NAME}/luis/prediction/v3.0/apps/{CONFIG.LUIS_APP_ID}"
         f"/slots/production/predict?verbose=true&show-all-intents=true&log=true"
-        f"&subscription-key={CONFIG.LUIS_AUTHORING_KEY}&query="
+        f"&subscription-key={CONFIG.LUIS_API_KEY}&query="
         )
         query = text
 
