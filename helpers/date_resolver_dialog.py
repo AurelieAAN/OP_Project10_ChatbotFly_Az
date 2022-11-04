@@ -3,7 +3,7 @@
 """Handle date/time resolution for booking dialog."""
 
 from datatypes_date_time.timex import Timex
-
+from datetime import datetime
 from botbuilder.core import MessageFactory, BotTelemetryClient, NullTelemetryClient
 from botbuilder.dialogs import WaterfallDialog, DialogTurnResult, WaterfallStepContext
 from botbuilder.dialogs.prompts import (
@@ -57,7 +57,7 @@ class DateResolverDialog(CancelAndHelpDialog):
         prompt_msg = "On what date would you like to travel?"
         reprompt_msg = (
             "I'm sorry, for best results, please enter your travel "
-            "date including the month, day and year."
+            "date including the month, day and year, and it is greater than today"
         )
 
         if timex is None:
@@ -74,7 +74,7 @@ class DateResolverDialog(CancelAndHelpDialog):
         if "definite" in Timex(timex).types:
             # This is essentially a "reprompt" of the data we were given up front.
             return await step_context.prompt(
-                DateTimePrompt.__name__, PromptOptions(prompt=reprompt_msg)
+                DateTimePrompt.__name__, PromptOptions(prompt=reprompt_msg, retry_prompt=MessageFactory.text(reprompt_msg))
             )
         return await step_context.next(timex)
 
@@ -90,7 +90,9 @@ class DateResolverDialog(CancelAndHelpDialog):
     @staticmethod
     async def datetime_prompt_validator(prompt_context: PromptValidatorContext) -> bool:
         """ Validate the date provided is in proper form. """
-        if prompt_context.recognized.succeeded:
+        today =  datetime.now()
+        val = datetime.strptime(prompt_context.recognized.value[0].timex.split("T")[0], '%Y-%m-%d')
+        if (prompt_context.recognized.succeeded and today<val):
             timex = prompt_context.recognized.value[0].timex.split("T")[0]
 
             # TODO: Needs TimexProperty
