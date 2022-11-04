@@ -4,6 +4,7 @@ botbuilder-integration-aiohttp==4.14.2
 botbuilder-dialogs==4.14.2
 botbuilder-ai==4.14.2
 aiohttp==3.7.4
+datatypes-date-time==1.0.0a2
 azure-cognitiveservices-language-luis==0.2.0
 botbuilder-integration-applicationinsights-aiohttp==4.14.2
 opencensus-ext-azure==1.1.7
