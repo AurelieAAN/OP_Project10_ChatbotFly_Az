@@ -80,10 +80,14 @@ async def messages(req: Request) -> Response:
         return json_response(data=response.body, status=response.status)
     return Response(status=HTTPStatus.OK)
 
-APP = web.Application(middlewares=[bot_telemetry_middleware, aiohttp_error_middleware])
-APP.router.add_post("/api/messages", messages)
+def init_funct(argv):
+    APP = web.Application(middlewares=[bot_telemetry_middleware, aiohttp_error_middleware])
+    APP.router.add_post("/api/messages", messages)
+    return APP
+
 
 if __name__ == '__main__':
+    APP = init_funct(None)
     try:
         web.run_app(APP, host="localhost", port=3978)
     except Exception as error:
