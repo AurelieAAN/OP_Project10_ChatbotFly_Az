@@ -158,13 +158,14 @@ class MainDialog(ComponentDialog):
     ) -> DialogTurnResult:
         #yes
         if step_context.result:
+            MainDialog.log_confirm()
             # WaterfallStep always finishes with the end of the Waterfall or
             # with another dialog; here it is a Prompt Dialog.
             prompt_message = "What else can I do for you?"
             return await step_context.replace_dialog(self.id, prompt_message)
         # no
         else:
-            MainDialog.log_eval()
+            MainDialog.log_notconfirm()
             prompt_message = "What else can I do for you?"
             return await step_context.replace_dialog(self.id, prompt_message)
 
@@ -189,11 +190,19 @@ class MainDialog(ComponentDialog):
             await context.send_activity(message)
 
     @staticmethod
-    def log_eval():
+    def log_notconfirm():
         logger = logging.getLogger(__name__)
         print("-----in", CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY)
         logger.addHandler(AzureEventHandler(connection_string=f'InstrumentationKey={CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY}'))
         logger.setLevel(logging.INFO)
-        logger.info('Hello, World!')
+        logger.info('0 - Bot recap not confirmed by user')
+
+    @staticmethod
+    def log_confirm():
+        logger = logging.getLogger(__name__)
+        print("-----in", CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY)
+        logger.addHandler(AzureEventHandler(connection_string=f'InstrumentationKey={CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY}'))
+        logger.setLevel(logging.INFO)
+        logger.info('1 - Bot recap confirmed by user')
 
     
