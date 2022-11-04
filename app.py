@@ -28,7 +28,7 @@ from flight_booking_recognizer import FlightBookingRecognizer
 loop = asyncio.get_event_loop()
 
 CONFIG = DefaultConfig()
-botadaptersettings = BotFrameworkAdapterSettings("", "")
+botadaptersettings = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)
 botadapter = BotFrameworkAdapter(botadaptersettings)
 
 
