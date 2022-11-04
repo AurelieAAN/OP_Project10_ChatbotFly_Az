@@ -1,10 +1,9 @@
-emoji<2.0.0
 botbuilder-core==4.14.2
 botbuilder-applicationinsights==4.14.2
 botbuilder-integration-aiohttp==4.14.2
 botbuilder-dialogs==4.14.2
 botbuilder-ai==4.14.2
-aiohttp==3.7.4.post0
+aiohttp==3.7.4
 azure-cognitiveservices-language-luis==0.2.0
 opencensus-ext-azure==1.1.7
 pandas==1.5.1
@@ -12,3 +11,4 @@ python-dotenv==0.21.0
 recognizers-text==1.0.2a2
 requests==2.25.1
 urllib3==1.26.12
+msal==1.6.0

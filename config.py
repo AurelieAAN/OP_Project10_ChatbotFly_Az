@@ -17,8 +17,8 @@ class DefaultConfig:
     """Configuration for the bot."""
 
     PORT = 3978
-    APP_ID = ""
-    APP_PASSWORD = ""
+    APP_ID = os.getenv('BOT_APP_ID')
+    APP_PASSWORD = os.getenv('BOT_INFO')
     LUIS_AUTHORING_KEY = os.getenv('LUIS_AUTHORING_KEY')
     LUIS_APP_ID = os.getenv('APP_ID')
     LUIS_API_KEY = os.getenv('PREDICTION_KEY')

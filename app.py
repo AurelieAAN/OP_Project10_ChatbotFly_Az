@@ -28,7 +28,7 @@ from flight_booking_recognizer import FlightBookingRecognizer
 loop = asyncio.get_event_loop()
 
 CONFIG = DefaultConfig()
-botadaptersettings = BotFrameworkAdapterSettings(CONFIG.APP_ID, CONFIG.APP_PASSWORD)
+botadaptersettings = BotFrameworkAdapterSettings("", "")
 botadapter = BotFrameworkAdapter(botadaptersettings)
 
 
@@ -93,3 +93,4 @@ if __name__ == '__main__':
         web.run_app(APP, host="localhost", port=3978)
     except Exception as error:
         raise error
+
