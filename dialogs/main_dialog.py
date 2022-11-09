@@ -1,12 +1,26 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
+import sys
+sys.path.insert(0, "../")
 import warnings
 from botbuilder.dialogs import (
     ComponentDialog,
     WaterfallDialog,
+    DialogManagerResult,
     WaterfallStepContext,
+    DialogManager,
+    Dialog,
     DialogTurnResult,
 )
+from botbuilder.schema import (
+    Activity,
+    ActivityTypes,
+    ChannelAccount,
+    ConversationAccount,
+    EndOfConversationCodes,
+    InputHints,
+)
+from botframework.connector.auth import AuthenticationConstants, ClaimsIdentity
 from botbuilder.dialogs.prompts import TextPrompt, PromptOptions
 from botbuilder.core import (
     MessageFactory,
@@ -19,21 +33,55 @@ from botbuilder.dialogs.prompts import (
     ConfirmPrompt,
     PromptOptions
 )
-from botbuilder.schema import InputHints
+from botbuilder.core import (
+    AutoSaveStateMiddleware,
+    BotAdapter,
+    ConversationState,
+    MemoryStorage,
 
+    MessageFactory,
+    UserState,
+    TurnContext,
+)
+from botbuilder.core.adapters import TestAdapter
+from botbuilder.core.skills import SkillHandler, SkillConversationReference
+from botbuilder.schema import InputHints
+from typing import Callable, List, Tuple
 from flight_booking_recognizer import FlightBookingRecognizer
 from helpers.luis_helper import LuisHelper, Intent
 from .user_profile_dialog import UserProfileDialog
 import logging
-import sys
-# Insert the path of modules folder
-sys.path.insert(0, "./")
-from config import DefaultConfig
+from OP_Project10_ChatbotFly_Az.config import DefaultConfig
 from opencensus.ext.azure.log_exporter import AzureEventHandler
-
+from enum import Enum
 CONFIG = DefaultConfig()
 
+class SkillFlowTestCase(str, Enum):
+    # DialogManager is executing on a root bot with no skills (typical standalone bot).
+    root_bot_only = "RootBotOnly"
+
+    # DialogManager is executing on a root bot handling replies from a skill.
+    root_bot_consuming_skill = "RootBotConsumingSkill"
+
+    # DialogManager is executing in a skill that is called from a root and calling another skill.
+    middle_skill = "MiddleSkill"
+
+    # DialogManager is executing in a skill that is called from a parent (a root or another skill) but doesn"t call
+    # another skill.
+    leaf_skill = "LeafSkill"
+
 class MainDialog(ComponentDialog):
+    # An App ID for a parent bot.
+    parent_bot_id = "00000000-0000-0000-0000-0000000000PARENT"
+
+    # An App ID for a skill bot.
+    skill_bot_id = "00000000-0000-0000-0000-00000000000SKILL"
+
+    # Captures an EndOfConversation if it was sent to help with assertions.
+    eoc_sent: Activity = None
+
+    # Property to capture the DialogManager turn results and do assertions.
+    dm_turn_result: DialogManagerResult = None
     def __init__(
         self,
         luis_recognizer: FlightBookingRecognizer, # à vérifier
@@ -65,6 +113,91 @@ class MainDialog(ComponentDialog):
         self.add_dialog(wf_dialog)
 
         self.initial_dialog_id = "WFDialog"
+        self.end_reason = None
+    
+    @staticmethod
+    async def create_test_flow(
+        dialog: Dialog,
+        test_case: SkillFlowTestCase = SkillFlowTestCase.root_bot_only,
+        enabled_trace=False,
+    ) -> TestAdapter:
+        conversation_id = "testFlowConversationId"
+        storage = MemoryStorage()
+        conversation_state = ConversationState(storage)
+        user_state = UserState(storage)
+
+        activity = Activity(
+            channel_id="test",
+            service_url="https://test.com",
+            from_property=ChannelAccount(id="user1", name="User1"),
+            recipient=ChannelAccount(id="bot", name="Bot"),
+            conversation=ConversationAccount(
+                is_group=False, conversation_type=conversation_id, id=conversation_id
+            ),
+        )
+
+        dialog_manager = DialogManager(dialog)
+        dialog_manager.user_state = user_state
+        dialog_manager.conversation_state = conversation_state
+
+        async def logic(context: TurnContext):
+            if test_case != SkillFlowTestCase.root_bot_only:
+                # Create a skill ClaimsIdentity and put it in turn_state so isSkillClaim() returns True.
+                claims_identity = ClaimsIdentity({}, False)
+                claims_identity.claims[
+                    "ver"
+                ] = "2.0"  # AuthenticationConstants.VersionClaim
+                claims_identity.claims[
+                    "aud"
+                ] = (
+                    MainDialog.skill_bot_id
+                )  # AuthenticationConstants.AudienceClaim
+                claims_identity.claims[
+                    "azp"
+                ] = (
+                    MainDialog.parent_bot_id
+                )  # AuthenticationConstants.AuthorizedParty
+                context.turn_state[BotAdapter.BOT_IDENTITY_KEY] = claims_identity
+
+                if test_case == SkillFlowTestCase.root_bot_consuming_skill:
+                    # Simulate the SkillConversationReference with a channel OAuthScope stored in turn_state.
+                    # This emulates a response coming to a root bot through SkillHandler.
+                    context.turn_state[
+                        SkillHandler.SKILL_CONVERSATION_REFERENCE_KEY
+                    ] = SkillConversationReference(
+                        None, AuthenticationConstants.TO_CHANNEL_FROM_BOT_OAUTH_SCOPE
+                    )
+
+                if test_case == SkillFlowTestCase.middle_skill:
+                    # Simulate the SkillConversationReference with a parent Bot ID stored in turn_state.
+                    # This emulates a response coming to a skill from another skill through SkillHandler.
+                    context.turn_state[
+                        SkillHandler.SKILL_CONVERSATION_REFERENCE_KEY
+                    ] = SkillConversationReference(
+                        None, MainDialog.parent_bot_id
+                    )
+
+            async def aux(
+                turn_context: TurnContext,  # pylint: disable=unused-argument
+                activities: List[Activity],
+                next: Callable,
+            ):
+                for activity in activities:
+                    if activity.type == ActivityTypes.end_of_conversation:
+                        MainDialog.eoc_sent = activity
+                        break
+
+                return await next()
+
+            # Interceptor to capture the EoC activity if it was sent so we can assert it in the tests.
+            context.on_send_activities(aux)
+
+            MainDialog.dm_turn_result = await dialog_manager.on_turn(context)
+
+        adapter = TestAdapter(logic, activity, enabled_trace)
+        adapter.use(AutoSaveStateMiddleware([user_state, conversation_state]))
+
+        return adapter
 
     async def intro_step(self, step_context: WaterfallStepContext) -> DialogTurnResult:
         if not self._luis_recognizer.is_configured:
@@ -156,8 +289,9 @@ class MainDialog(ComponentDialog):
     async def final_step(
         self, step_context: WaterfallStepContext
     ) -> DialogTurnResult:
+        print("info", step_context.result)
         #yes
-        if step_context.result:
+        if step_context.result==True:
             MainDialog.log_confirm()
             # WaterfallStep always finishes with the end of the Waterfall or
             # with another dialog; here it is a Prompt Dialog.
@@ -192,7 +326,6 @@ class MainDialog(ComponentDialog):
     @staticmethod
     def log_notconfirm():
         logger = logging.getLogger(__name__)
-        print("-----in", CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY)
         logger.addHandler(AzureEventHandler(connection_string=f'InstrumentationKey={CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY}'))
         logger.setLevel(logging.INFO)
         logger.info('0 - Bot recap not confirmed by user')
@@ -200,7 +333,6 @@ class MainDialog(ComponentDialog):
     @staticmethod
     def log_confirm():
         logger = logging.getLogger(__name__)
-        print("-----in", CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY)
         logger.addHandler(AzureEventHandler(connection_string=f'InstrumentationKey={CONFIG.APPINSIGHTS_INSTRUMENTATION_KEY}'))
         logger.setLevel(logging.INFO)
         logger.info('1 - Bot recap confirmed by user')

@@ -1,5 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
+import sys
+sys.path.insert(0, "../")
 from enum import Enum
 import urllib
 import json

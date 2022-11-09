@@ -1,7 +1,8 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 """Handle date/time resolution for booking dialog."""
-
+import sys
+sys.path.insert(0, "../")
 from datatypes_date_time.timex import Timex
 from datetime import datetime
 from botbuilder.core import MessageFactory, BotTelemetryClient, NullTelemetryClient
