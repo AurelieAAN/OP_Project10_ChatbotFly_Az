@@ -2,9 +2,6 @@ name: default
 on:
   push
 
-jobs:
-  build:
-
   steps:
     uses: actions/setup-python@v4
     with:
