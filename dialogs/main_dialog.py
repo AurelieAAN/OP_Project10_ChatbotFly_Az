@@ -1,7 +1,5 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-import sys
-sys.path.insert(0, "../")
 import warnings
 from botbuilder.dialogs import (
     ComponentDialog,
@@ -47,8 +45,8 @@ from botbuilder.core.adapters import TestAdapter
 from botbuilder.core.skills import SkillHandler, SkillConversationReference
 from botbuilder.schema import InputHints
 from typing import Callable, List, Tuple
-from flight_booking_recognizer import FlightBookingRecognizer
-from helpers.luis_helper import LuisHelper, Intent
+from OP_Project10_ChatbotFly_Az.flight_booking_recognizer import FlightBookingRecognizer
+from OP_Project10_ChatbotFly_Az.helpers.luis_helper import LuisHelper, Intent
 from .user_profile_dialog import UserProfileDialog
 import logging
 from OP_Project10_ChatbotFly_Az.config import DefaultConfig

@@ -10,7 +10,7 @@ from botbuilder.core import (
     NullTelemetryClient,
 )
 
-from config import DefaultConfig
+from OP_Project10_ChatbotFly_Az.config import DefaultConfig
 
 
 class FlightBookingRecognizer(Recognizer):

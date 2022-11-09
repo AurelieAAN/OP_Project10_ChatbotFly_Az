@@ -49,7 +49,7 @@ from unittest.mock import Mock
 import os
 import pytest
 from user_profile import UserProfile
-from dialogs.user_profile_dialog import UserProfileDialog
+from OP_Project10_ChatbotFly_Az.dialogs.user_profile_dialog import UserProfileDialog
 from unittest import TestCase
 from botbuilder.core import (
     TurnContext, 
@@ -83,7 +83,7 @@ from botbuilder.dialogs import (
 from botbuilder.core.adapters import TestAdapter
 from botframework.connector.auth import AuthenticationConstants, ClaimsIdentity
 import pytest
-from config import DefaultConfig 
+from OP_Project10_ChatbotFly_Az.config import DefaultConfig 
 CONFIG = DefaultConfig()
 
 
