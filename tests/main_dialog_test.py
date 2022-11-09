@@ -10,8 +10,8 @@ from sqlite3 import Date
 from enum import Enum
 import aiounittest
 from typing import Callable, List, Tuple
-from OP_Project10_ChatbotFly_Az.flight_booking_recognizer import FlightBookingRecognizer
-from OP_Project10_ChatbotFly_Az.dialogs.main_dialog import MainDialog
+from flight_booking_recognizer import FlightBookingRecognizer
+from dialogs.main_dialog import MainDialog
 #from .cancel_and_help_dialog import CancelAndHelpDialog
 from datatypes_date_time.timex import Timex
 from botbuilder.dialogs import (
@@ -49,7 +49,7 @@ from unittest.mock import Mock
 import os
 import pytest
 from user_profile import UserProfile
-from OP_Project10_ChatbotFly_Az.dialogs.user_profile_dialog import UserProfileDialog
+from dialogs.user_profile_dialog import UserProfileDialog
 from unittest import TestCase
 from botbuilder.core import (
     TurnContext, 
@@ -83,7 +83,7 @@ from botbuilder.dialogs import (
 from botbuilder.core.adapters import TestAdapter
 from botframework.connector.auth import AuthenticationConstants, ClaimsIdentity
 import pytest
-from OP_Project10_ChatbotFly_Az.config import DefaultConfig 
+from config import DefaultConfig 
 CONFIG = DefaultConfig()
 
 

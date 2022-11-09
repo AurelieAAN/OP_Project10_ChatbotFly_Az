@@ -1,6 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
-
+import sys
+sys.path.insert(0, "../")
 from botbuilder.ai.luis import LuisApplication, LuisRecognizer, LuisPredictionOptions
 from botbuilder.core import (
     Recognizer,
@@ -10,7 +11,7 @@ from botbuilder.core import (
     NullTelemetryClient,
 )
 
-from OP_Project10_ChatbotFly_Az.config import DefaultConfig
+from config import DefaultConfig
 
 
 class FlightBookingRecognizer(Recognizer):

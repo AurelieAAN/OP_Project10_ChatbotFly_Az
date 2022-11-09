@@ -43,8 +43,8 @@ from unittest.mock import Mock
 
 import os
 import pytest
-from OP_Project10_ChatbotFly_Az.user_profile import UserProfile
-from OP_Project10_ChatbotFly_Az.dialogs.user_profile_dialog import UserProfileDialog
+from user_profile import UserProfile
+from dialogs.user_profile_dialog import UserProfileDialog
 from unittest import TestCase
 from botbuilder.core import (
     TurnContext, 

@@ -12,8 +12,8 @@ from botbuilder.ai.luis import LuisRecognizer
 from botbuilder.core import IntentScore, TopIntent, TurnContext
 from azure.cognitiveservices.language.luis.runtime import LUISRuntimeClient
 from msrest.authentication import CognitiveServicesCredentials
-from OP_Project10_ChatbotFly_Az.user_profile import UserProfile
-from OP_Project10_ChatbotFly_Az.helpers.luis_helper import LuisHelper
+from user_profile import UserProfile
+from helpers.luis_helper import LuisHelper
 from datetime import datetime
 from config import DefaultConfig
 

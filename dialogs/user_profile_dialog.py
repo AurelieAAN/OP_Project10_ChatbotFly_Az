@@ -53,8 +53,8 @@ from botbuilder.schema import (
 )
 import sys
 from botframework.connector.auth import AuthenticationConstants, ClaimsIdentity
-from OP_Project10_ChatbotFly_Az.helpers.date_resolver_dialog import DateResolverDialog
-from OP_Project10_ChatbotFly_Az.user_profile import UserProfile
+from helpers.date_resolver_dialog import DateResolverDialog
+from user_profile import UserProfile
 
 class Questions(str, Enum):
     destination = "To what city would you like to travel?"
